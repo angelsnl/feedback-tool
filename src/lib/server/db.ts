@@ -1,9 +1,9 @@
 import postgres from 'postgres';
+import { env } from '$env/dynamic/private';
 
-const DATABASE_URL = process.env.DATABASE_URL;
-if (!DATABASE_URL) throw new Error('DATABASE_URL is not set');
+if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
 
-const sql = postgres(DATABASE_URL);
+const sql = postgres(env.DATABASE_URL);
 
 export default sql;
 
