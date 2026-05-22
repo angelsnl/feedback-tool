@@ -1,0 +1,8 @@
+node_modules
+.svelte-kit
+build
+db/data
+.env.local
+!.env.example
+terraform
+migrations
