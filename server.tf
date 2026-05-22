@@ -1,4 +1,5 @@
 resource "upcloud_server" "app" {
+  title = "Trainee Test Server"
   hostname = "trainee-test-server"
   zone     = var.zone
   plan     = "1xCPU-1GB"

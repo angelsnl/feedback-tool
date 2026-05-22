@@ -1,6 +1,6 @@
 resource "upcloud_managed_database_postgresql" "main" {
   name  = "trainee-test-postgres"
-  title = "App PostgreSQL"
+  title = "Trainee Test PostgreSQL"
   plan  = "1x1xCPU-2GB-25GB"
   zone  = var.zone
 
