@@ -37,9 +37,6 @@ override.tf.json
 # Nix / direnv
 .direnv/
 
-# Bun
-bun.lock
-
 # Editor
 .idea/
 *.swp
