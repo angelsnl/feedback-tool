@@ -1,7 +1,0 @@
-pg_host               = "localhost"
-pg_port               = 5432
-pg_superuser          = "postgres"
-pg_superuser_password = ""
-app_db_name           = "form_app"
-app_db_user           = "form_app"
-app_db_password       = "changeme"
