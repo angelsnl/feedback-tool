@@ -5,6 +5,7 @@ on:
     branches: [dev]
     paths:
       - terraform/**
+  workflow_dispatch:
 
 jobs:
   apply:
