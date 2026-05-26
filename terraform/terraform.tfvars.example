@@ -1,7 +1,0 @@
-upcloud_username = "your-upcloud-username"
-upcloud_password = "your-upcloud-password"
-project_name     = "form-app"
-zone             = "de-fra1"
-ssh_public_key   = "ssh-ed25519 AAAA..."
-admin_ip         = "1.2.3.4"
-db_allowed_ips   = ["1.2.3.4/32"]
