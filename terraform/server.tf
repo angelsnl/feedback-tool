@@ -7,7 +7,7 @@ resource "upcloud_server" "app" {
 
   template {
     storage = "Ubuntu Server 24.04 LTS (Noble Numbat)"
-    size    = 25
+    size    = 10
   }
 
   network_interface {
@@ -21,6 +21,10 @@ resource "upcloud_server" "app" {
 
   login {
     user = "ubuntu"
-    keys = [file(pathexpand("~/.ssh/id_ed25519.pub"))]
+    keys = [
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDUgKr4od5isNltQuHZwkm/tiEyYL4XDssQnDyxHXPln github",
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGxqyhR02yclevvbcgeWNIzpdwZX/OORGkuoiTvxq/P jook@maxos-work",
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOXFkMEYw69Gp/2flL0XgvGZUJAZ7dM3baKDBPWWzNLm vike@macbook-work",
+    ]
   }
 }
