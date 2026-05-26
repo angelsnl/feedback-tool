@@ -1,0 +1,13 @@
+.git
+node_modules
+.env
+.env*
+.direnv
+.vscode
+flake.nix
+flake.lock
+terraform
+docker-compose.yml
+compose.dev.yml
+.github
+README.md

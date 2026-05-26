@@ -1,19 +1,7 @@
 services:
-  db:
-    image: postgres:18-alpine
+  app:
+    image: ghcr.io/angelsnl/feedback-tool:${IMAGE_TAG}
     ports:
-      - 5432:5432
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: mysecretpassword
-      POSTGRES_DB: local
-    volumes:
-      - pgdata:/var/lib/postgresql
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  pgdata:
+      - "3000:3000"
+    env_file: .env
+    restart: unless-stopped
