@@ -1,6 +1,7 @@
 resource "upcloud_server" "app" {
-  title    = "Trainee Test Server"
-  hostname = "trainee-test-server"
+  for_each = local.environments
+  title    = "${each.key} Server"
+  hostname = "${each.key}-server"
   zone     = var.zone
   plan     = "1xCPU-1GB"
   metadata = true
@@ -16,7 +17,7 @@ resource "upcloud_server" "app" {
 
   network_interface {
     type    = "private"
-    network = upcloud_network.private.id
+    network = upcloud_network.private[each.key].id
   }
 
   login {

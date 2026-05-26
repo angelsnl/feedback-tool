@@ -4,6 +4,10 @@ terraform {
       source  = "UpCloudLtd/upcloud"
       version = "~> 5.0"
     }
+    github = {
+      source  = "integrations/github"
+      version = "~> 6.0"
+    }
   }
   required_version = ">= 1.3"
   cloud {
@@ -17,4 +21,12 @@ terraform {
 
 provider "upcloud" {
   token = var.upcloud_token
+}
+
+provider "github" {
+  token = var.github_token
+}
+
+locals {
+  environments = toset(["dev"])
 }

@@ -5,6 +5,18 @@ variable "zone" {
 }
 
 variable "upcloud_token" {
-  type = string
+  type      = string
   sensitive = true
+}
+
+variable "github_token" {
+  description = "GitHub personal access token with repo secrets permission"
+  type        = string
+  sensitive   = true
+}
+
+variable "github_repository" {
+  description = "GitHub repository in owner/name format"
+  type        = string
+  default     = "https://github.com/angelsnl/feedback-tool"
 }
