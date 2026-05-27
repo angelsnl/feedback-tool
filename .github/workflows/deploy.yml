@@ -49,6 +49,7 @@ jobs:
           DATABASE_URL=${{ secrets.DATABASE_URL }}
           PORT=3000
           IMAGE_TAG=${{ github.sha }}
+          ORIGIN=http://${{ secrets.DEPLOY_HOST }}:3000
           EOF
       - name: Sync files
         run: |
