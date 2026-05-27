@@ -26,4 +26,4 @@ jobs:
         working-directory: terraform
         env:
           TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
-          TF_VAR_github_token: ${{ secrets.TERRAFORM_GITHUB_KEY }}
+          TF_VAR_github_token: ${{ secrets.GITHUB_TOKEN }}
