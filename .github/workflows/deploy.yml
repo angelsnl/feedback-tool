@@ -38,7 +38,7 @@ jobs:
           chmod 600 ~/.ssh/deploy_key
           cat >> ~/.ssh/config << EOF
           Host deploy
-            HostName ${{ secrets.DEPLOY_HOST }}
+            HostName ${{ vars.DEPLOY_HOST }}
             User ubuntu
             IdentityFile ~/.ssh/deploy_key
             StrictHostKeyChecking accept-new

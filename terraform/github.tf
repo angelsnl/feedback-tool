@@ -16,12 +16,12 @@ resource "github_actions_environment_secret" "ssh_private_key" {
   value       = tls_private_key.deploy.private_key_openssh
 }
 
-resource "github_actions_environment_secret" "deploy_host" {
-  for_each    = local.environments
-  repository  = var.github_repository
-  environment = github_repository_environment.env[each.key].environment
-  secret_name = "DEPLOY_HOST"
-  value       = upcloud_server.app[each.key].network_interface[0].ip_address
+resource "github_actions_environment_variable" "deploy_host" {
+  for_each      = local.environments
+  repository    = var.github_repository
+  environment   = github_repository_environment.env[each.key].environment
+  variable_name = "DEPLOY_HOST"
+  value         = upcloud_server.app[each.key].network_interface[0].ip_address
 }
 
 resource "github_actions_environment_secret" "database_url" {
@@ -38,7 +38,7 @@ resource "github_actions_secret" "upcloud_key" {
   value       = ""
 
   lifecycle {
-    ignore_changes = [value]
+    ignore_changes  = [value]
     prevent_destroy = true
   }
 }
@@ -49,7 +49,7 @@ resource "github_actions_secret" "terraform_cloud_key" {
   value       = ""
 
   lifecycle {
-    ignore_changes = [value]
+    ignore_changes  = [value]
     prevent_destroy = true
   }
 }
