@@ -1,7 +1,6 @@
 resource "upcloud_server" "app" {
-  for_each = local.environments
-  title    = "${each.key} Server"
-  hostname = "${each.key}-server"
+  title    = "${local.environment} Server"
+  hostname = "${local.environment}-server"
   zone     = var.zone
   plan     = "1xCPU-1GB"
   metadata = true
@@ -17,13 +16,13 @@ resource "upcloud_server" "app" {
 
   network_interface {
     type    = "private"
-    network = upcloud_network.private[each.key].id
+    network = upcloud_network.private.id
   }
 
   login {
     user = "ubuntu"
     keys = [
-      tls_private_key.deploy[each.key].public_key_openssh,
+      tls_private_key.deploy.public_key_openssh,
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGxqyhR02yclevvbcgeWNIzpdwZX/OORGkuoiTvxq/P jook@maxos-work",
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOXFkMEYw69Gp/2flL0XgvGZUJAZ7dM3baKDBPWWzNLm vike@macbook-work",
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINUmD1Ik72f9W54EV9x0Up6Q8RWJwSTmoXqcxpSr9MbF abds@macbook",

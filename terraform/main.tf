@@ -17,7 +17,7 @@ terraform {
   cloud {
     organization = "pepes-angels-test"
     workspaces {
-      name = "upcloud-test"
+      tags = ["feedback-tool"]
     }
   }
 
@@ -33,5 +33,6 @@ provider "github" {
 }
 
 locals {
-  environments = toset(["dev", "prod"])
+  environment = trimprefix(terraform.workspace, "feedback-tool-")
 }
+

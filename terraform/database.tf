@@ -1,15 +1,14 @@
 resource "upcloud_managed_database_postgresql" "main" {
-  for_each = local.environments
-  name     = "postgres-${each.key}"
-  title    = "PostgreSQL ${each.key}"
-  plan     = "1x1xCPU-2GB-25GB"
-  zone     = var.zone
+  name  = "postgres-${local.environment}"
+  title = "PostgreSQL ${local.environment}"
+  plan  = "1x1xCPU-2GB-25GB"
+  zone  = var.zone
 
   network {
     family = "IPv4"
     name   = "private"
     type   = "private"
-    uuid   = upcloud_network.private[each.key].id
+    uuid   = upcloud_network.private.id
   }
 
   properties {

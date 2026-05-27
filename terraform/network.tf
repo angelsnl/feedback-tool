@@ -1,13 +1,11 @@
 resource "upcloud_router" "main" {
-  for_each = local.environments
-  name     = "router-${each.key}"
+  name = "router-${local.environment}"
 }
 
 resource "upcloud_network" "private" {
-  for_each = local.environments
-  name     = "private-net-${each.key}"
-  zone     = var.zone
-  router   = upcloud_router.main[each.key].id
+  name   = "private-net-${local.environment}"
+  zone   = var.zone
+  router = upcloud_router.main.id
 
   ip_network {
     address            = "10.0.0.0/24"
