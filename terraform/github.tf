@@ -1,4 +1,5 @@
 resource "tls_private_key" "deploy" {
+  for_each  = local.environments
   algorithm = "ED25519"
 }
 
@@ -13,7 +14,7 @@ resource "github_actions_environment_secret" "ssh_private_key" {
   repository  = var.github_repository
   environment = github_repository_environment.env[each.key].environment
   secret_name = "SSH_PRIVATE_KEY"
-  value       = tls_private_key.deploy.private_key_openssh
+  value       = tls_private_key.deploy[each.key].private_key_openssh
 }
 
 resource "github_actions_environment_variable" "deploy_host" {

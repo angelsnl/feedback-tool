@@ -33,5 +33,5 @@ provider "github" {
 }
 
 locals {
-  environments = toset(["dev"])
+  environments = toset(["dev", "prod"])
 }
