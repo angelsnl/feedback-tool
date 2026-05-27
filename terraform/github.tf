@@ -32,25 +32,3 @@ resource "github_actions_environment_secret" "database_url" {
   secret_name = "DATABASE_URL"
   value       = upcloud_managed_database_postgresql.main[each.key].service_uri
 }
-
-resource "github_actions_secret" "upcloud_key" {
-  repository  = var.github_repository
-  secret_name = "UPCLOUD_KEY"
-  value       = ""
-
-  lifecycle {
-    ignore_changes  = [value]
-    prevent_destroy = true
-  }
-}
-
-resource "github_actions_secret" "terraform_cloud_key" {
-  repository  = var.github_repository
-  secret_name = "TERRAFORM_CLOUD_KEY"
-  value       = ""
-
-  lifecycle {
-    ignore_changes  = [value]
-    prevent_destroy = true
-  }
-}
