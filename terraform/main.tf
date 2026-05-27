@@ -29,6 +29,7 @@ provider "upcloud" {
 
 provider "github" {
   token = var.github_token
+  owner = "angelsnl"
 }
 
 locals {
