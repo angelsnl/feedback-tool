@@ -32,9 +32,9 @@ resource "github_actions_environment_secret" "database_url" {
   value       = upcloud_managed_database_postgresql.main[each.key].service_uri
 }
 
-resource "github_actions_secret" "upcloud_token" {
+resource "github_actions_secret" "upcloud_key" {
   repository  = var.github_repository
-  secret_name = "UPCLOUD_TOKEN"
+  secret_name = "UPCLOUD_KEY"
   value       = ""
 
   lifecycle {
