@@ -18,5 +18,5 @@ variable "github_token" {
 variable "github_repository" {
   description = "GitHub repository in owner/name format"
   type        = string
-  default     = "https://github.com/angelsnl/feedback-tool"
+  default     = "angelsnl/feedback-tool"
 }
