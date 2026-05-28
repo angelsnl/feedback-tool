@@ -1,6 +1,6 @@
 resource "upcloud_server" "app" {
-  title    = "${local.environment} Server"
-  hostname = "${local.environment}-server"
+  title    = "Server ${local.environment}"
+  hostname = "server-${local.environment}"
   zone     = var.zone
   plan     = "1xCPU-1GB"
   metadata = true
