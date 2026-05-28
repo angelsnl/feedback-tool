@@ -1,29 +1,25 @@
-output "server_public_ip" {
-  value = upcloud_server.app.network_interface[0].ip_address
+output "service_uri" {
+  sensitive = true
+  value     = upcloud_managed_database_postgresql.main.service_uri
 }
 
-output "db_host" {
+output "service_host" {
   value = upcloud_managed_database_postgresql.main.service_host
 }
 
-output "db_port" {
+output "service_port" {
   value = upcloud_managed_database_postgresql.main.service_port
 }
 
-output "db_name" {
+output "primary_database" {
   value = upcloud_managed_database_postgresql.main.primary_database
 }
 
-output "db_username" {
+output "service_username" {
   value = upcloud_managed_database_postgresql.main.service_username
 }
 
-output "db_password" {
+output "service_password" {
   sensitive = true
   value     = upcloud_managed_database_postgresql.main.service_password
-}
-
-output "db_uri" {
-  sensitive = true
-  value     = upcloud_managed_database_postgresql.main.service_uri
 }

@@ -1,13 +1,21 @@
+terraform {
+  required_providers {
+    upcloud = {
+      source = "UpCloudLtd/upcloud"
+    }
+  }
+}
+
 resource "upcloud_server" "app" {
-  title    = "Server ${local.environment}"
-  hostname = "server-${local.environment}"
+  title    = "Server ${var.environment}"
+  hostname = "server-${var.environment}"
   zone     = var.zone
-  plan     = "1xCPU-1GB"
+  plan     = var.plan
   metadata = true
 
   template {
-    storage = "Ubuntu Server 24.04 LTS (Noble Numbat)"
-    size    = 10
+    storage = var.storage_template
+    size    = var.storage_size
   }
 
   network_interface {
@@ -16,18 +24,12 @@ resource "upcloud_server" "app" {
 
   network_interface {
     type    = "private"
-    network = upcloud_network.private.id
+    network = var.private_network_id
   }
 
   login {
     user = "ubuntu"
-    keys = [
-      tls_private_key.deploy.public_key_openssh,
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDGxqyhR02yclevvbcgeWNIzpdwZX/OORGkuoiTvxq/P jook@maxos-work",
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOXFkMEYw69Gp/2flL0XgvGZUJAZ7dM3baKDBPWWzNLm vike@macbook-work",
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINUmD1Ik72f9W54EV9x0Up6Q8RWJwSTmoXqcxpSr9MbF abds@macbook",
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAOHerEf2NP5ozdtcYxMa/mEwVn55acVa2mndb+xlOnw phag@macbook"
-    ]
+    keys = concat([var.deploy_public_key], var.ssh_public_keys)
   }
 
   user_data = <<-EOT
