@@ -12,6 +12,7 @@ resource "github_repository_environment" "env" {
 }
 
 resource "github_actions_environment_secret" "ssh_private_key" {
+  depends_on  = [github_repository_environment.env]
   repository  = var.github_repository
   environment = github_repository_environment.env.environment
   secret_name = "SSH_PRIVATE_KEY"
@@ -19,6 +20,7 @@ resource "github_actions_environment_secret" "ssh_private_key" {
 }
 
 resource "github_actions_environment_variable" "deploy_host" {
+  depends_on    = [github_repository_environment.env]
   repository    = var.github_repository
   environment   = github_repository_environment.env.environment
   variable_name = "DEPLOY_HOST"
@@ -26,6 +28,7 @@ resource "github_actions_environment_variable" "deploy_host" {
 }
 
 resource "github_actions_environment_secret" "database_url" {
+  depends_on  = [github_repository_environment.env]
   repository  = var.github_repository
   environment = github_repository_environment.env.environment
   secret_name = "DATABASE_URL"

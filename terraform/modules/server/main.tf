@@ -7,8 +7,8 @@ terraform {
 }
 
 resource "upcloud_server" "app" {
-  title    = "Server ${var.environment}"
-  hostname = "server-${var.environment}"
+  title    = "Trainee Server ${var.environment}"
+  hostname = "trainee-server-${var.environment}"
   zone     = var.zone
   plan     = var.plan
   metadata = true

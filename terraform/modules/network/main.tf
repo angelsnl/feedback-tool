@@ -7,11 +7,11 @@ terraform {
 }
 
 resource "upcloud_router" "main" {
-  name = "router-${var.environment}"
+  name = "trainee-router-${var.environment}"
 }
 
 resource "upcloud_network" "private" {
-  name   = "private-net-${var.environment}"
+  name   = "trainee-private-net-${var.environment}"
   zone   = var.zone
   router = upcloud_router.main.id
 
