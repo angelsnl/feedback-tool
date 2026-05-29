@@ -7,8 +7,6 @@ on:
     branches:
       - dev
       - prod
-    paths:
-      - .github/workflows/semgrep.yml
   schedule:
     - cron: '20 17 * * *'
 
