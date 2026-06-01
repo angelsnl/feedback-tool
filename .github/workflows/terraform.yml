@@ -44,7 +44,7 @@ jobs:
           TF_VAR_github_token: ${{ secrets.TERRAFORM_GITHUB_KEY }}
 
   check:
-    if: github.event_name == 'workflow_call'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     outputs:
       needs_apply: ${{ steps.check.outputs.needs_apply }}
@@ -64,7 +64,7 @@ jobs:
   apply:
     needs: [check]
     if: |
-      github.event_name == 'workflow_call' &&
+      github.event_name != 'pull_request' &&
       (needs.check.outputs.needs_apply == 'true' || inputs.force_apply)
     runs-on: ubuntu-latest
     steps:
