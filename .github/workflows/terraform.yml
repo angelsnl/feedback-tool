@@ -1,0 +1,84 @@
+name: Terraform
+
+on:
+  pull_request:
+    branches: [dev, prod]
+    paths: ['terraform/**']
+  workflow_call:
+    inputs:
+      force_apply:
+        type: boolean
+        default: false
+    secrets:
+      TERRAFORM_CLOUD_KEY:
+        required: true
+      UPCLOUD_KEY:
+        required: true
+      TERRAFORM_GITHUB_KEY:
+        required: true
+
+jobs:
+  plan:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Init
+        run: terraform init
+        working-directory: terraform/environments/${{ github.base_ref }}
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
+      - name: Check formatting
+        id: fmt
+        run: terraform fmt -check -recursive
+      - name: Validate
+        id: validate
+        run: terraform validate -no-color
+      - name: Plan
+        run: terraform plan
+        working-directory: terraform/environments/${{ github.base_ref }}
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
+          TF_VAR_upcloud_token: ${{ secrets.UPCLOUD_KEY }}
+          TF_VAR_github_token: ${{ secrets.TERRAFORM_GITHUB_KEY }}
+
+  check:
+    if: github.event_name == 'workflow_call'
+    runs-on: ubuntu-latest
+    outputs:
+      needs_apply: ${{ steps.check.outputs.needs_apply }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Check Terraform Changes
+        id: check
+        run: |
+          if git diff --name-only HEAD~1 HEAD | grep -q '^terraform/'; then
+            echo "needs_apply=true" >> $GITHUB_OUTPUT
+          else
+            echo "needs_apply=false" >> $GITHUB_OUTPUT
+          fi
+
+  apply:
+    needs: [check]
+    if: |
+      github.event_name == 'workflow_call' &&
+      (needs.check.outputs.needs_apply == 'true' || inputs.force_apply)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Init
+        run: terraform init
+        working-directory: terraform/environments/${{ github.ref_name }}
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
+      - name: Apply
+        run: terraform apply -auto-approve
+        working-directory: terraform/environments/${{ github.ref_name }}
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
+          TF_VAR_upcloud_token: ${{ secrets.UPCLOUD_KEY }}
+          TF_VAR_github_token: ${{ secrets.TERRAFORM_GITHUB_KEY }}
