@@ -1,5 +1,6 @@
 import { db } from '$lib/server/db';
 import { notes } from '$lib/server/db/schema';
+import { validateNoteContent } from '$lib/notes';
 import { desc, eq } from 'drizzle-orm';
 import { fail } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
@@ -13,13 +14,11 @@ export const load: PageServerLoad = async () => {
 export const actions: Actions = {
 	create: async ({ request }) => {
 		const data = await request.formData();
-		const content = data.get('content');
+		const content = validateNoteContent(data.get('content'));
 
-		if (!content || typeof content !== 'string' || !content.trim()) {
-			return fail(400, { error: 'Note cannot be empty' });
-		}
+		if (!content) return fail(400, { error: 'Note cannot be empty' });
 
-		await db.insert(notes).values({ content: content.trim() });
+		await db.insert(notes).values({ content });
 	},
 
 	delete: async ({ request }) => {
