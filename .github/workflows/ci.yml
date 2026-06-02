@@ -80,15 +80,19 @@ jobs:
         run: |
           rsync -az docker-compose.yml deploy:/opt/feedback-tool/
           rsync -az deploy.env deploy:/opt/feedback-tool/.env
-      - name: Pull and restart
+      - name: Pull image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
         run: |
           echo "$GITHUB_TOKEN" | \
             ssh deploy "docker login ghcr.io -u $GITHUB_ACTOR --password-stdin"
-          ssh deploy '
-            cd /opt/feedback-tool
-            docker compose pull
-            docker compose up -d
-          '
+          ssh deploy 'cd /opt/feedback-tool && docker compose pull'
+      - name: Run migrations
+        run: |
+          ssh deploy "docker run --rm \
+            --env-file /opt/feedback-tool/.env \
+            ${{ env.IMAGE }}:${{ github.sha }} \
+            bun run db:migrate"
+      - name: Restart service
+        run: ssh deploy 'cd /opt/feedback-tool && docker compose up -d'
