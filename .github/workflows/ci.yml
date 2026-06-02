@@ -91,7 +91,7 @@ jobs:
       - name: Run migrations
         run: |
           ssh deploy "docker run --rm \
-            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            --env-file /opt/feedback-tool/.env \
             ${{ env.IMAGE }}:${{ github.sha }} \
             bun run db:migrate"
       - name: Restart service
