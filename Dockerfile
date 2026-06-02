@@ -16,4 +16,4 @@ COPY --from=build --chown=bun:bun /app/drizzle.config.ts ./
 COPY --chown=bun:bun package.json ./
 USER bun
 EXPOSE 3000
-CMD ["sh", "-c", "bun run db:migrate && bun ./build/index.js"]
+CMD ["bun", "./build/index.js"]

@@ -62,7 +62,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
           cat >> ~/.ssh/config << EOF
-          Host deploy
+            Host deploy
             HostName ${{ vars.DEPLOY_HOST }}
             User ubuntu
             IdentityFile ~/.ssh/deploy_key
@@ -71,24 +71,28 @@ jobs:
       - name: Write env file
         run: |
           cat > deploy.env << EOF
-          DATABASE_URL=${{ secrets.DATABASE_URL }}
-          PORT=3000
-          IMAGE_TAG=${{ github.sha }}
-          ORIGIN=http://${{ vars.DEPLOY_HOST }}:3000
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            PORT=3000
+            IMAGE_TAG=${{ github.sha }}
+            ORIGIN=http://${{ vars.DEPLOY_HOST }}:3000
           EOF
       - name: Sync files
         run: |
           rsync -az docker-compose.yml deploy:/opt/feedback-tool/
           rsync -az deploy.env deploy:/opt/feedback-tool/.env
-      - name: Pull and restart
+      - name: Pull image
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_ACTOR: ${{ github.actor }}
         run: |
           echo "$GITHUB_TOKEN" | \
             ssh deploy "docker login ghcr.io -u $GITHUB_ACTOR --password-stdin"
-          ssh deploy '
-            cd /opt/feedback-tool
-            docker compose pull
-            docker compose up -d
-          '
+          ssh deploy 'cd /opt/feedback-tool && docker compose pull'
+      - name: Run migrations
+        run: |
+          ssh deploy "docker run --rm \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            ${{ env.IMAGE }}:${{ github.sha }} \
+            bun run db:migrate"
+      - name: Restart service
+        run: ssh deploy 'cd /opt/feedback-tool && docker compose up -d'
