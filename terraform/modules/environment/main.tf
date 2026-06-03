@@ -14,6 +14,7 @@ module "database" {
   zone                 = var.zone
   private_network_id   = module.network.network_id
   private_network_cidr = module.network.cidr
+  plan                 = var.pg_plan
 }
 
 module "server" {
