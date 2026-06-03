@@ -15,6 +15,5 @@ variable "private_network_cidr" {
 }
 
 variable "plan" {
-  type    = string
-  default = "1x1xCPU-1GB-10GB"
+  type = string
 }
