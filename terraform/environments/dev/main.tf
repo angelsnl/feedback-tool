@@ -23,10 +23,12 @@ terraform {
       iam = "https://hsu3i.upcloudobjects.com:4443/iam"
       sts = "https://hsu3i.upcloudobjects.com:4443/sts"
     }
-    skip_credentials_validation = true
-    skip_region_validation      = true
     skip_requesting_account_id  = true
-    use_path_style              = false
+    skip_credentials_validation = true
+    skip_metadata_api_check     = true
+    skip_region_validation      = true
+    skip_s3_checksum            = true
+    use_path_style              = true
   }
 }
 
