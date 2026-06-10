@@ -92,6 +92,13 @@ EOF
 
 done
 
+echo "Setting github variables and secrets..."
+gh variable set TF_STATE_BUCKET_ENDPOINT --body "https://$endpoint"
+for env in $ENVS; do
+    gh variable set TF_STATE_ACCESS_KEY_ID --env "$env" --body "${access_key_id[$env]}"
+    gh secret set TF_STATE_SECRET_ACCESS_KEY --env "$env" --body "${secret_access_key[$env]}"
+done
+
 echo -e "Provisioning complete for \n"
 echo REGION="$REGION"
 echo BUCKET_NAME="$BUCKET_NAME"
