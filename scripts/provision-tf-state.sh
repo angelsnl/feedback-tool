@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SERVICE_NAME="${SERVICE_NAME:-feedback-tool-tf-state}"
-BUCKET_NAME="${BUCKET_NAME:-terraform-state}"
-REGION="${REGION:-europe-1}"
-USERNAME="${USERNAME:-terraform}"
+SERVICE_NAME="feedback-tool-tf-state"
+BUCKET_NAME="terraform-state"
+REGION="europe-1"
+USERNAME_BASE="terraform"
+ENVS="
+dev
+prod
+"
+
+gh auth status 1> /dev/null
 
 upctl_json() { upctl -o json "$@"; }
 
@@ -24,46 +30,102 @@ else
   echo "found existing service: $service_uuid"
 fi
 
-endpoint=$(upctl_json object-storage show "$service_uuid" | jq -r '.endpoint_url // .endpoints[0].domain_name')
-
-# Create user if it doesn't exist
-echo "checking for user '$USERNAME'..."
-user_exists=$(upctl_json object-storage user list "$service_uuid" | \
-  jq -r --arg u "$USERNAME" '.[] | select(.username == $u) | .username' | head -1)
-
-if [[ -z "$user_exists" ]]; then
-  echo "creating user '$USERNAME'..."
-  upctl object-storage user create "$service_uuid" --username "$USERNAME"
-fi
-
-# Create access key (secret shown only once)
-echo "creating access key for '$USERNAME'..."
-key=$(upctl_json object-storage access-key create "$service_uuid" --username "$USERNAME")
-access_key_id=$(echo "$key" | jq -r '.access_key_id')
-secret_access_key=$(echo "$key" | jq -r '.secret_access_key')
-
 # Create bucket
 echo "creating bucket '$BUCKET_NAME'..."
 upctl object-storage bucket create "$service_uuid" --name "$BUCKET_NAME" || \
-  echo "bucket may already exist, continuing..."
+    echo "bucket may already exist, continuing..."
 
-cat <<EOF
+endpoint=$(upctl_json object-storage show "$service_uuid" | jq -r '.endpoint_url // .endpoints[0].domain_name')
 
-provisioning complete. add this backend block to each terraform environment
-and replace the existing cloud {} block:
+declare -A access_key_id
+declare -A secret_access_key
 
-  backend "s3" {
-    bucket                      = "$BUCKET_NAME"
-    key                         = "<environment>/terraform.tfstate"
-    region                      = "$REGION"
-    endpoint                    = "https://$endpoint"
-    access_key                  = "$access_key_id"
-    secret_key                  = "$secret_access_key"
+for env in $ENVS; do
+    # Create user if it doesn't exist
+    USERNAME="$USERNAME_BASE-$env"
+    echo "checking for user '$USERNAME'..."
+    arn=$(upctl_json object-storage user list "$service_uuid" | \
+      jq -r --arg u "$USERNAME" '.[] | select(.username == $u) | .arn' | head -1)
+
+    if [[ -z "$arn" ]]; then
+      echo "creating user '$USERNAME'..."
+      upctl object-storage user create "$service_uuid" --username "$USERNAME"
+    fi
+
+    # Create access key (secret shown only once)
+    echo "creating access key for '$USERNAME'..."
+    key=$(upctl_json object-storage access-key create "$service_uuid" --username "$USERNAME")
+    access_key_id[$env]=$(echo "$key" | jq -r '.access_key_id')
+    secret_access_key[$env]=$(echo "$key" | jq -r '.secret_access_key')
+
+    POLICY="$(jq -c '.' << EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
+        "Resource": "arn:aws:s3:::terraform-state/$env/terraform.tfstate",
+        "Effect": "Allow"
+        },
+        {
+        "Action": ["s3:ListBucket", "s3:GetBucketVersioning"],
+        "Resource": "arn:aws:s3:::terraform-state",
+        "Effect": "Allow"
+        }
+    ]
+}
+EOF
+    )"
+
+    echo "adding terraform bucket access policy to user '${USERNAME}'"
+    curl -X POST "https://api.upcloud.com/1.3/object-storage-2/${service_uuid}/users/${USERNAME}/inline-policies" \
+        -s -f -o /dev/null \
+        -H "Host: api.upcloud.com" \
+        -H "Authorization: Bearer $UPCLOUD_TOKEN" \
+        -H "Content-Type: application/json" \
+        -d "$(jq -c -n \
+            --arg content "$POLICY" \
+            '{
+                "name": "TFStateFullAccess",
+                "document": $content
+            }')"
+
+done
+
+echo -e "Provisioning complete for \n"
+echo REGION="$REGION"
+echo BUCKET_NAME="$BUCKET_NAME"
+echo AWS_ENDPOINT_URL="https://$endpoint"
+
+echo The following terraform state users were generated:
+for env in $ENVS; do
+    cat << EOF
+
+USERNAME=$USERNAME_BASE-$env
+AWS_ACCESS_KEY_ID=${access_key_id[$env]}
+AWS_SECRET_ACCESS_KEY=${secret_access_key[$env]}
+
+EOF
+done
+
+echo "WARNING: The secret keys are only shown once and cannot be retrieved again."
+
+cat << EOF
+
+Use the following snippet to configure terraform backend:
+
+backend "s3" {
+    bucket = "terraform-state"
+    key    = "<environment>/terraform.tfstate"
+    region = "europe-1"
+    endpoints = {
+        s3 = "https://hsu3i.upcloudobjects.com"
+        iam = "https://hsu3i.upcloudobjects.com:4443/iam"
+        sts = "https://hsu3i.upcloudobjects.com:4443/sts"
+    }
     skip_credentials_validation = true
     skip_region_validation      = true
-    force_path_style            = false
-  }
-
-warning: the secret_key above is shown only once and cannot be retrieved again.
-store it in a secrets manager before closing this terminal.
+    skip_requesting_account_id  = true
+    use_path_style              = false
+}
 EOF

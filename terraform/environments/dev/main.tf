@@ -8,17 +8,25 @@ terraform {
       source  = "integrations/github"
       version = "~> 6.0"
     }
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
+    # tls = {
+    #   source  = "hashicorp/tls"
+    #   version = "~> 4.0"
+    # }
   }
   required_version = ">= 1.3"
-  cloud {
-    organization = "pepes-angels-test"
-    workspaces {
-      name = "feedback-tool-dev"
+  backend "s3" {
+    bucket = "terraform-state"
+    key    = "dev/terraform.tfstate"
+    region = "europe-1"
+    endpoints = {
+      s3  = "https://hsu3i.upcloudobjects.com"
+      iam = "https://hsu3i.upcloudobjects.com:4443/iam"
+      sts = "https://hsu3i.upcloudobjects.com:4443/sts"
     }
+    skip_credentials_validation = true
+    skip_region_validation      = true
+    skip_requesting_account_id  = true
+    use_path_style              = false
   }
 }
 
