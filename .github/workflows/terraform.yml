@@ -26,14 +26,16 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     environment: ${{ github.ref_name }}
+    env:
+      AWS_ENDPOINT_URL: ${{ vars.TF_STATE_BUCKET_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ vars.TF_STATE_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_STATE_SECRET_ACCESS_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
       - name: Init
         run: terraform init
         working-directory: terraform/environments/${{ github.base_ref }}
-        env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
       - name: Check formatting
         id: fmt
         run: terraform fmt -check -recursive
@@ -44,9 +46,6 @@ jobs:
         run: terraform plan
         working-directory: terraform/environments/${{ github.base_ref }}
         env:
-          AWS_ENDPOINT_URL: ${{ vars.TF_STATE_BUCKET_ENDPOINT }}
-          AWS_ACCESS_KEY_ID: ${{ vars.TF_STATE_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY_ID }}
           TF_VAR_upcloud_token: ${{ secrets.UPCLOUD_KEY }}
           TF_VAR_github_token: ${{ secrets.TERRAFORM_GITHUB_KEY }}
 
@@ -70,6 +69,10 @@ jobs:
 
   apply:
     needs: [check]
+    env:
+      AWS_ENDPOINT_URL: ${{ vars.TF_STATE_BUCKET_ENDPOINT }}
+      AWS_ACCESS_KEY_ID: ${{ vars.TF_STATE_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_STATE_SECRET_ACCESS_KEY }}
     if: |
       github.event_name != 'pull_request' &&
       (needs.check.outputs.needs_apply == 'true' || inputs.force_apply)
@@ -86,8 +89,5 @@ jobs:
         run: terraform apply -auto-approve
         working-directory: terraform/environments/${{ github.ref_name }}
         env:
-          AWS_ENDPOINT_URL: ${{ vars.TF_STATE_BUCKET_ENDPOINT }}
-          AWS_ACCESS_KEY_ID: ${{ vars.TF_STATE_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_STATE_ACCESS_KEY_ID }}
           TF_VAR_upcloud_token: ${{ secrets.UPCLOUD_KEY }}
           TF_VAR_github_token: ${{ secrets.TERRAFORM_GITHUB_KEY }}
