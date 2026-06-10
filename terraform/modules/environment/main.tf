@@ -8,14 +8,14 @@ module "network" {
   zone        = var.zone
 }
 
-module "database" {
-  source               = "../database"
-  environment          = var.environment
-  zone                 = var.zone
-  private_network_id   = module.network.network_id
-  private_network_cidr = module.network.cidr
-  plan                 = var.pg_plan
-}
+# module "database" {
+#   source               = "../database"
+#   environment          = var.environment
+#   zone                 = var.zone
+#   private_network_id   = module.network.network_id
+#   private_network_cidr = module.network.cidr
+#   plan                 = var.pg_plan
+# }
 
 module "server" {
   source             = "../server"
@@ -31,6 +31,7 @@ module "github" {
   environment        = var.environment
   github_repository  = var.github_repository
   deploy_private_key = tls_private_key.deploy.private_key_openssh
-  database_url       = module.database.service_uri
-  server_public_ip   = module.server.public_ip
+  # database_url       = module.database.service_uri
+  database_url     = ""
+  server_public_ip = module.server.public_ip
 }
