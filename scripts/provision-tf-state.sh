@@ -94,7 +94,10 @@ done
 
 echo "Setting github variables and secrets..."
 gh variable set TF_STATE_BUCKET_ENDPOINT --body "https://$endpoint"
+
+OWNER_REPO="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
 for env in $ENVS; do
+    gh api --method PUT "/repos/$OWNER_REPO/environments/$env" > /dev/null
     gh variable set TF_STATE_ACCESS_KEY_ID --env "$env" --body "${access_key_id[$env]}"
     gh secret set TF_STATE_SECRET_ACCESS_KEY --env "$env" --body "${secret_access_key[$env]}"
 done
