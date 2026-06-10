@@ -17,6 +17,10 @@ on:
       TERRAFORM_GITHUB_KEY:
         required: true
 
+env:
+  AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+  AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+
 jobs:
   plan:
     if: github.event_name == 'pull_request'
