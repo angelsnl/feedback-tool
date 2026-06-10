@@ -80,11 +80,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
+      - name: Test
+        run: |
+          echo $AWS_ACCESS_KEY_ID
+          echo $AWS_SECRET_ACCESS_KEY
       - name: Init
         run: terraform init
         working-directory: terraform/environments/${{ github.ref_name }}
-        env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TERRAFORM_CLOUD_KEY }}
       - name: Apply
         run: terraform apply -auto-approve
         working-directory: terraform/environments/${{ github.ref_name }}
